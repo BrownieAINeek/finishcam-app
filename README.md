@@ -84,7 +84,9 @@ The prototype was validated with controlled tests in an indoor setting, using a 
 
 A red bottle and a blue bottle were passed across the finish line one after the other, about 1.5 seconds apart.
 
-**Input video:** `test_results/test2.mp4`
+**Input video:**
+
+![Two-bottle test video](test_results/test2.mp4)
 
 **Output:**
 
