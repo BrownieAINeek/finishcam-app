@@ -41,14 +41,7 @@
           "recordAudioAndroid": true
         }
       ],
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Allow FinishCam to save videos to your gallery.",
-          "savePhotosPermission": "Allow FinishCam to save videos.",
-          "isAccessMediaLocationEnabled": true
-        }
-      ]
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

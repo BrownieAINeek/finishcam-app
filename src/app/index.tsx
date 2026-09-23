@@ -1,5 +1,5 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
-import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
 import { useRef, useState } from "react";
 import {
   Alert,
@@ -12,14 +12,11 @@ import {
 
 export default function HomeScreen() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [mediaPermission, requestMediaPermission] =
-    MediaLibrary.usePermissions();
   const [isRecording, setIsRecording] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const cameraRef = useRef<CameraView>(null);
 
-  // Handle permissions
-  if (!permission || !mediaPermission) {
+  if (!permission) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Requesting permissions...</Text>
@@ -27,20 +24,15 @@ export default function HomeScreen() {
     );
   }
 
-  if (!permission.granted || !mediaPermission.granted) {
+  if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>
-          We need camera and gallery access to work.
-        </Text>
+        <Text style={styles.text}>We need camera access to work.</Text>
         <TouchableOpacity
           style={styles.permissionBtn}
-          onPress={() => {
-            requestPermission();
-            requestMediaPermission();
-          }}
+          onPress={requestPermission}
         >
-          <Text style={styles.text}>Grant Permissions</Text>
+          <Text style={styles.text}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
     );
@@ -51,8 +43,12 @@ export default function HomeScreen() {
       setIsRecording(true);
       try {
         const video = await cameraRef.current.recordAsync();
+        setIsRecording(false);
         if (video?.uri) {
-          await saveToGallery(video.uri);
+          Alert.alert("Recording saved!", "Share it to save it somewhere.", [
+            { text: "Share", onPress: () => Sharing.shareAsync(video.uri) },
+            { text: "Later", style: "cancel" },
+          ]);
         }
       } catch (e) {
         console.error("Recording error:", e);
@@ -64,23 +60,6 @@ export default function HomeScreen() {
   const stopRecording = () => {
     if (cameraRef.current && isRecording) {
       cameraRef.current.stopRecording();
-      setIsRecording(false);
-    }
-  };
-
-  const saveToGallery = async (uri: string) => {
-    try {
-      const asset = await MediaLibrary.createAssetAsync(uri);
-      const album = await MediaLibrary.getAlbumAsync("FinishCam");
-      if (album == null) {
-        await MediaLibrary.createAlbumAsync("FinishCam", asset, false);
-      } else {
-        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-      }
-      Alert.alert("Saved!", "Video saved to FinishCam album.");
-    } catch (error) {
-      console.error("Gallery save error:", error);
-      Alert.alert("Saved to default gallery", "Could not create custom album.");
     }
   };
 
@@ -92,11 +71,10 @@ export default function HomeScreen() {
         ref={cameraRef}
         mode="video"
         videoQuality="480p"
+        mute={true}
       >
-        {/* Vertical Finish Line */}
         <View style={styles.finishLine} pointerEvents="none" />
 
-        {/* Settings Button (Top Right) */}
         <TouchableOpacity
           style={styles.settingsBtn}
           onPress={() => setSettingsVisible(true)}
@@ -104,7 +82,6 @@ export default function HomeScreen() {
           <Text style={styles.settingsIcon}>⚙️</Text>
         </TouchableOpacity>
 
-        {/* Record Button (Bottom Center) */}
         <View style={styles.controls}>
           <TouchableOpacity
             style={[styles.recordBtn, isRecording && styles.recordingBtn]}
@@ -119,7 +96,6 @@ export default function HomeScreen() {
         </View>
       </CameraView>
 
-      {/* Settings Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -158,7 +134,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: "center",
   },
-
   finishLine: {
     position: "absolute",
     top: 0,
@@ -168,7 +143,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 255, 0, 0.7)",
     zIndex: 10,
   },
-
   settingsBtn: {
     position: "absolute",
     top: 50,
@@ -177,7 +151,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   settingsIcon: { fontSize: 28 },
-
   controls: {
     position: "absolute",
     bottom: 50,
@@ -203,7 +176,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff0000",
   },
   stopSquare: { width: 30, height: 30, backgroundColor: "#ff0000" },
-
   modalContainer: {
     flex: 1,
     justifyContent: "center",
