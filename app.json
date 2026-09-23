@@ -32,6 +32,22 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow FinishCam to access your camera.",
+          "microphonePermission": "Allow FinishCam to access your microphone.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow FinishCam to save videos to your gallery.",
+          "savePhotosPermission": "Allow FinishCam to save videos.",
+          "isAccessMediaLocationEnabled": true
+        }
       ]
     ],
     "experiments": {
